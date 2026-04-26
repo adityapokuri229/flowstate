@@ -41,10 +41,13 @@ class SetupScreen {
   }
 
   mount() {
+    if (this._listenersAttached) return;
     const slider = document.getElementById('setup-slider');
     const display = document.getElementById('setup-duration-display');
     const scienceText = document.getElementById('setup-science-text');
     const button = document.getElementById('btn-enter-deep-work');
+
+    this._listenersAttached = true;
 
     slider.addEventListener('input', () => {
       const val = parseInt(slider.value, 10);

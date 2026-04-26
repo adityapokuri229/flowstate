@@ -52,8 +52,13 @@ class BreathingScreen {
     this.currentCycle = 0;
     this.currentPhase = 0;
 
-    document.getElementById('btn-skip-breathing').addEventListener('click', () => this.complete());
+    if (!this._listenersAttached) {
+      document.getElementById('btn-skip-breathing').addEventListener('click', () => this.complete());
+      this._listenersAttached = true;
+    }
 
+    if (this._sessionActive) return;
+    this._sessionActive = true;
     setTimeout(() => this.startCycle(), 1000);
   }
 
@@ -109,8 +114,9 @@ class BreathingScreen {
   }
 
   complete() {
+    this._sessionActive = false;
     const phaseText = document.getElementById('breathing-phase-text');
-    phaseText.textContent = '';
+    if (phaseText) phaseText.textContent = '';
     setTimeout(() => this.app.navigateTo('setup'), 800);
   }
 

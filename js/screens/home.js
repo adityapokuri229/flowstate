@@ -15,7 +15,7 @@ class HomeScreen {
           <header class="home-hero">
             <h1 class="hero-title">FlowState</h1>
             <p class="hero-subtitle">A scientifically grounded environment for deep work, obsession, and total cognitive absorption.</p>
-            <button class="btn btn-large" id="btn-enter" style="margin-top: 2rem;">Enter Flow</button>
+            <button class="btn btn-large" id="btn-enter" style="margin-top: 2rem;">Enter Sanctuary</button>
           </header>
 
           <div class="feature-grid">

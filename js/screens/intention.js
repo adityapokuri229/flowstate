@@ -63,6 +63,8 @@ class IntentionScreen {
 
   mount() {
     const form = document.getElementById('intention-form');
+    if (this._listenersAttached) return;
+    this._listenersAttached = true;
 
     // Staggered reveal
     const fields = form.querySelectorAll('.form-field');

@@ -16,18 +16,24 @@ class AudioEngine {
     this.nsdrNodes = null;
   }
 
-  init() {
+  async init() {
     if (this.initialized) {
       if (this.ctx && this.ctx.state === 'suspended') {
-        this.ctx.resume();
+        await this.ctx.resume();
       }
       return;
     }
-    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-    this.initialized = true;
+    if (this.initPromise) return this.initPromise;
+
+    this.initPromise = (async () => {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') {
+        await this.ctx.resume();
+      }
+      this.initialized = true;
+    })();
+    
+    return this.initPromise;
   }
 
   /* ---- Mode Cycling ---- */
@@ -36,17 +42,20 @@ class AudioEngine {
     return this.currentMode;
   }
 
-  cycleMode() {
-    this.init();
+  async cycleMode() {
+    await this.init();
     const modes = ['binaural', 'brown', 'silence'];
     const idx = modes.indexOf(this.currentMode);
     const next = modes[(idx + 1) % modes.length];
-    this.setMode(next);
+    await this.setMode(next);
     return next;
   }
 
-  setMode(mode) {
-    this.init();
+  async setMode(mode) {
+    if (mode === this.currentMode && this.activeSource) return;
+
+    await this.init();
+    if (this.ctx.state === 'suspended') await this.ctx.resume();
 
     // Fade out and disconnect old source
     if (this.activeSource) {

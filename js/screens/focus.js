@@ -45,8 +45,6 @@ class FocusScreen {
         <!-- 20/20/20 Pulse Overlay -->
         <div class="pulse-overlay" id="pulse-overlay">
           <div class="pulse-breath-circle"></div>
-          <span class="pulse-countdown" id="pulse-countdown">20</span>
-          <p class="pulse-breath-cue">Breathe slowly through your nose</p>
           <p>Look 20 feet away.<br/>Breathe.</p>
           <span class="citation">20-20-20 Rule — American Academy of Ophthalmology</span>
         </div>
@@ -127,7 +125,7 @@ class FocusScreen {
       setTimeout(() => this.triggerDreamWhisper(), 120 * 1000); // 2 minutes
     }
 
-    this.twentyThresholds = [20, 40, 60, 80, 100].map(m => m * 60 * 1000);
+    this.schedule2020();
 
     // Audio
     document.getElementById('btn-audio').addEventListener('click', () => {
@@ -212,11 +210,6 @@ class FocusScreen {
         fgPath.style.strokeDashoffset = this.pathLength * (1 - progress);
       }
 
-      if (this.twentyThresholds.length > 0 && this.elapsed >= this.twentyThresholds[0]) {
-        this.twentyThresholds.shift();
-        this.show2020Pulse();
-      }
-
       if (progress >= 1) {
         this.complete();
         return;
@@ -242,28 +235,29 @@ class FocusScreen {
 
   /* ---- 20/20/20 Rule ---- */
 
+  schedule2020() {
+    this.twentyTimer = setTimeout(() => {
+      if (this.elapsed < this.durationMs && !this.paused) {
+        this.show2020Pulse();
+      } else {
+        this.schedule2020(); // check again
+      }
+    }, 20 * 60 * 1000); // 20 mins
+  }
+
   show2020Pulse() {
     this.pulseCount++;
     const overlay = document.getElementById('pulse-overlay');
-    const countdownEl = document.getElementById('pulse-countdown');
     overlay.classList.add('active');
     
-    let left = 20;
-    if (countdownEl) countdownEl.textContent = left;
-
-    this.twentyTimer = setInterval(() => {
-      left--;
-      if (countdownEl) countdownEl.textContent = left;
-      
-      if (left <= 0) {
-        clearInterval(this.twentyTimer);
-        overlay.classList.remove('active');
-        if (this.pulseCount === 2) {
-          // Trigger whisper immediately after the second 20-min pulse dismisses
-          setTimeout(() => this.triggerDreamWhisper(), 1000);
-        }
+    setTimeout(() => {
+      overlay.classList.remove('active');
+      if (this.pulseCount === 2) {
+        // Trigger whisper immediately after the second 20-min pulse dismisses
+        setTimeout(() => this.triggerDreamWhisper(), 1000);
       }
-    }, 1000);
+      this.schedule2020(); // Schedule next 20 mins
+    }, 20000); // 20 seconds
   }
 
   /* ---- Physiological Sigh ---- */

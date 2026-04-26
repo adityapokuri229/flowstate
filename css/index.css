@@ -836,34 +836,6 @@ p, label, span {
   visibility: visible;
 }
 
-.pulse-breath-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 1px solid var(--accent);
-  background: var(--accent-dim);
-  animation: gentle-pulse 5s var(--ease-breathe) infinite;
-  margin-bottom: 2rem;
-}
-
-.pulse-countdown {
-  font-family: 'Outfit', sans-serif;
-  font-size: 3rem;
-  font-weight: 300;
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.05em;
-}
-
-.pulse-breath-cue {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1rem;
-  color: var(--text-secondary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-}
-
 .pulse-overlay p {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(1.5rem, 4vw, 2.2rem);
@@ -1687,37 +1659,8 @@ p, label, span {
 }
 
 /* ============================================================
-   Break Task UI and Container
+   Break Task UI
    ============================================================ */
-
-.break-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-
-.break-shapes {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.break-shape {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--break-accent-glow);
-  filter: blur(60px);
-  animation: float 20s infinite ease-in-out alternate;
-}
-
-.break-shape:nth-child(1) { width: 300px; height: 300px; top: 10%; left: 20%; animation-delay: 0s; background: rgba(212,168,83, 0.15); }
-.break-shape:nth-child(2) { width: 400px; height: 400px; bottom: 10%; right: 10%; animation-delay: -5s; background: rgba(226,209,168, 0.2); }
-.break-shape:nth-child(3) { width: 250px; height: 250px; top: 40%; right: 30%; animation-delay: -10s; background: rgba(142,92,26, 0.1); }
-
 
 .break-task-card {
   background: var(--bg-secondary);
@@ -1728,7 +1671,7 @@ p, label, span {
   margin: 1rem auto;
   text-align: center;
   box-shadow: var(--shadow);
-  z-index: 3;
+  z-index: 2;
   position: relative;
 }
 
