@@ -94,7 +94,7 @@ class AudioEngine {
     oscL.type = 'sine';
     oscL.frequency.value = 200;
     const gainL = this.ctx.createGain();
-    gainL.gain.value = 0.12;
+    gainL.gain.value = 0.35; // Boosted
     oscL.connect(gainL);
     gainL.connect(merger, 0, 0);
 
@@ -102,7 +102,7 @@ class AudioEngine {
     oscR.type = 'sine';
     oscR.frequency.value = 240;
     const gainR = this.ctx.createGain();
-    gainR.gain.value = 0.12;
+    gainR.gain.value = 0.35; // Boosted
     oscR.connect(gainR);
     gainR.connect(merger, 0, 1);
 
@@ -157,7 +157,7 @@ class AudioEngine {
 
     // Fade in
     masterGain.gain.setValueAtTime(0, this.ctx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.35, this.ctx.currentTime + 2);
+    masterGain.gain.linearRampToValueAtTime(0.75, this.ctx.currentTime + 2); // Boosted from 0.35
 
     this.activeSource = {
       nodes: [source, filter],
@@ -211,8 +211,8 @@ class AudioEngine {
     lfo.start();
 
     gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.15, this.ctx.currentTime + 12);
-    gainNode.gain.setValueAtTime(0.15, this.ctx.currentTime + duration - 12);
+    gainNode.gain.linearRampToValueAtTime(0.4, this.ctx.currentTime + 12); // Boosted from 0.15
+    gainNode.gain.setValueAtTime(0.4, this.ctx.currentTime + duration - 12);
     gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + duration);
 
     osc1.stop(this.ctx.currentTime + duration);
@@ -262,7 +262,7 @@ class AudioEngine {
     
     const gain1 = this.ctx.createGain();
     gain1.gain.setValueAtTime(0, now);
-    gain1.gain.linearRampToValueAtTime(0.4, now + 0.05); // sharp attack
+    gain1.gain.linearRampToValueAtTime(0.9, now + 0.05); // Boosted from 0.4
     gain1.gain.exponentialRampToValueAtTime(0.001, now + 3); // exponential decay
     
     // Harmonic octave: 864Hz sine
@@ -297,7 +297,7 @@ class AudioEngine {
     
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.25, now + 0.1); // slightly softer attack
+    gain.gain.linearRampToValueAtTime(0.6, now + 0.1); // Boosted from 0.25
     gain.gain.exponentialRampToValueAtTime(0.001, now + 4); // longer ring
     
     osc.connect(gain);
@@ -318,7 +318,7 @@ class AudioEngine {
     
     const gain1 = this.ctx.createGain();
     gain1.gain.setValueAtTime(0, now);
-    gain1.gain.linearRampToValueAtTime(0.2, now + 0.08);
+    gain1.gain.linearRampToValueAtTime(0.5, now + 0.08); // Boosted from 0.2
     gain1.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
     
     const osc2 = this.ctx.createOscillator();
@@ -352,7 +352,7 @@ class AudioEngine {
     
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.15, now + 0.06);
+    gain.gain.linearRampToValueAtTime(0.4, now + 0.06); // Boosted from 0.15
     gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
     
     osc.connect(gain);
@@ -372,7 +372,7 @@ class AudioEngine {
     
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.12, now + 0.06);
+    gain.gain.linearRampToValueAtTime(0.35, now + 0.06); // Boosted from 0.12
     gain.gain.exponentialRampToValueAtTime(0.001, now + 2);
     
     osc.connect(gain);
