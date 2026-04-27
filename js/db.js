@@ -91,6 +91,21 @@ class FlowStateDB {
     });
   }
 
+  async updateUserName(userId, name) {
+    const tx = this.db.transaction('users', 'readwrite');
+    const store = tx.objectStore('users');
+
+    return new Promise((resolve) => {
+      const getReq = store.get(userId);
+      getReq.onsuccess = () => {
+        const user = getReq.result;
+        user.name = name;
+        const putReq = store.put(user);
+        putReq.onsuccess = () => resolve(user);
+      };
+    });
+  }
+
   async getUser(userId) {
     const tx = this.db.transaction('users', 'readonly');
     const store = tx.objectStore('users');

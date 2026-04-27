@@ -15,7 +15,12 @@ class HomeScreen {
           <header class="home-hero">
             <h1 class="hero-title">FlowState</h1>
             <p class="hero-subtitle">A scientifically grounded environment for deep work, obsession, and total cognitive absorption.</p>
-            <button class="btn btn-large" id="btn-enter" style="margin-top: 2rem;">Enter Flow</button>
+            
+            <div class="name-capture" style="margin-top: 2rem; opacity: 0; transform: translateY(20px); transition: all 1s var(--ease-smooth);">
+              <input type="text" id="field-name" placeholder="What is your name?" style="font-family: inherit; text-align: center; font-size: 1.2rem; background: transparent; border: none; border-bottom: 1px solid rgba(212, 168, 83, 0.4); color: var(--text-primary); padding: 0.5rem; outline: none; width: 250px;" />
+            </div>
+
+            <button class="btn btn-large" id="btn-enter" style="margin-top: 1.5rem;">Enter Flow</button>
           </header>
 
           <div class="feature-grid">
@@ -48,18 +53,34 @@ class HomeScreen {
     // Animate hero and cards
     const heroTitle = document.querySelector('.hero-title');
     const heroSub = document.querySelector('.hero-subtitle');
+    const nameCapture = document.querySelector('.name-capture');
+    const nameField = document.getElementById('field-name');
     const enterBtn = document.getElementById('btn-enter');
     const cards = document.querySelectorAll('.feature-card');
 
+    if (this.app.currentUser && this.app.currentUser.name) {
+      nameField.value = this.app.currentUser.name;
+    }
+
     setTimeout(() => heroTitle.classList.add('visible'), 100);
     setTimeout(() => heroSub.classList.add('visible'), 300);
+    setTimeout(() => {
+      nameCapture.style.opacity = '1';
+      nameCapture.style.transform = 'translateY(0)';
+    }, 400);
     setTimeout(() => enterBtn.classList.add('visible'), 500);
 
     cards.forEach((card, i) => {
       setTimeout(() => card.classList.add('visible'), 700 + (i * 150));
     });
 
-    enterBtn.addEventListener('click', () => {
+    enterBtn.addEventListener('click', async () => {
+      const name = nameField.value.trim();
+      if (name) {
+        this.app.currentUser.name = name;
+        await window.flowDB.updateUserName(this.app.currentUser.id, name);
+        window.flowLogger.logName(name); // Log to spreadsheet
+      }
       this.app.navigateTo('intention');
     });
   }

@@ -99,6 +99,14 @@ class FocusScreen {
           </button>
         </div>
 
+        <!-- Distraction Overlay -->
+        <div class="distraction-overlay" id="distraction-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding: 2rem;">
+          <h2 style="color:var(--accent); font-family:'Cormorant Garamond', serif; font-size:2.5rem; margin-bottom:1rem;">Focus Interrupted</h2>
+          <p id="distraction-dream" style="color:var(--text-secondary); font-size:1.1rem; margin-bottom:2rem; max-width:600px;"></p>
+          <q id="distraction-quote" style="color:var(--text-primary); font-size:1.5rem; font-style:italic; font-family:'Cormorant Garamond', serif; max-width:800px; line-height:1.4;"></q>
+          <button id="btn-resume-focus" class="btn btn-outline" style="margin-top:3rem;">Resume Work</button>
+        </div>
+
         <!-- Bottom Controls -->
         <div class="focus-controls" id="focus-controls">
           <div class="control-group">
@@ -191,15 +199,6 @@ class FocusScreen {
 
     this.schedule2020();
 
-    // Visibility change detection
-    this.visibilityHandler = () => {
-      if (document.visibilityState === 'visible' && !this.paused) {
-        this.triggerDreamWhisper();
-        window.audioEngine.playRestBell();
-      }
-    };
-    document.addEventListener('visibilitychange', this.visibilityHandler);
-
     // Audio tiles
     document.querySelectorAll('.audio-tile').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -233,6 +232,32 @@ class FocusScreen {
       }
     };
     document.addEventListener('keydown', this.keyHandler);
+
+    // Fullscreen on click
+    this.clickHandler = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn('Fullscreen request failed', err);
+        });
+      }
+    };
+    document.getElementById('screen-focus').addEventListener('click', this.clickHandler);
+
+    // Distraction Recognition (Tab switch)
+    this.visibilityHandler = () => {
+      if (document.visibilityState === 'hidden' && !this.paused && !this.scratchpadOpen) {
+        this.triggerDistractionOverlay();
+      }
+    };
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+
+    document.getElementById('btn-resume-focus').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('distraction-overlay').style.display = 'none';
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    });
 
     // Dev panel
     this.setupDevPanel();
@@ -426,6 +451,29 @@ class FocusScreen {
     this.schedule2020();
   }
 
+  /* ---- Distraction Recovery ---- */
+  triggerDistractionOverlay() {
+    const overlay = document.getElementById('distraction-overlay');
+    const dreamEl = document.getElementById('distraction-dream');
+    const quoteEl = document.getElementById('distraction-quote');
+
+    const name = this.app.currentUser?.name || 'Traveler';
+    const dream = this.app.sessionState.dream;
+    const quote = window.FlowQuotes?.getQuote(dream || '');
+
+    if (dream) {
+      dreamEl.textContent = `You switched away. Is that worth sacrificing: ${dream}?`;
+    } else {
+      dreamEl.textContent = `${name}, you switched away. Return to the present.`;
+    }
+
+    if (quote) {
+      quoteEl.textContent = `"${quote.text}" — ${quote.author}`;
+    }
+
+    overlay.style.display = 'flex';
+  }
+
   /* ---- Physiological Sigh ---- */
 
   async startSigh() {
@@ -571,6 +619,8 @@ class FocusScreen {
     if (this.twentyTimer) clearTimeout(this.twentyTimer);
     if (this.keyHandler) document.removeEventListener('keydown', this.keyHandler);
     if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
+    const screenEl = document.getElementById('screen-focus');
+    if (screenEl && this.clickHandler) screenEl.removeEventListener('click', this.clickHandler);
     this.eyerestActive = false;
     this.sighActive = false;
   }

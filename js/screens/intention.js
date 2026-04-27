@@ -29,6 +29,13 @@ class IntentionScreen {
             <p class="citation">Vivid goal imagery increases task persistence by 60% — Oettingen, WOOP Research, 2015</p>
           </div>
 
+          <div class="form-field" data-delay="4" style="flex-direction: row; align-items: center; gap: 0.5rem; justify-content: flex-start;">
+            <input type="checkbox" id="check-log-consent" style="width: 18px; height: 18px; cursor: pointer;" checked>
+            <label for="check-log-consent" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;">
+              Allow logging my intentions for scientific focus tracking.
+            </label>
+          </div>
+
           <div class="form-field" data-delay="2">
             <button type="submit" class="btn btn-large" id="btn-intention-continue" style="width:100%;">
               Begin Breathing Ritual
@@ -91,6 +98,16 @@ class IntentionScreen {
       this.app.sessionState.milestone = milestone;
       this.app.sessionState.distraction = '';
       this.app.sessionState.dream = dream;
+
+      // Logging logic
+      const consent = document.getElementById('check-log-consent').checked;
+      if (consent) {
+        window.flowLogger.logIntention(
+          this.app.currentUser?.name || 'Anonymous',
+          milestone,
+          dream
+        );
+      }
 
       this.app.navigateTo('breathing');
     });

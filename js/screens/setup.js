@@ -12,7 +12,7 @@ class SetupScreen {
   render() {
     return `
       <div class="screen" id="screen-setup">
-        <div class="setup-container">
+        <div class="setup-container" style="transform: translateY(-8vh);">
           <h2 style="color:var(--text-secondary);font-weight:300;">Session Duration</h2>
 
           <div class="setup-duration-display" id="setup-duration-display">

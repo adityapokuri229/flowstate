@@ -14,8 +14,22 @@ class BreakScreen {
   render() {
     return `
       <div class="screen" id="screen-breakmode">
-        <div class="break-container" style="justify-content: center; height: 100vh; gap: 2rem;">
-          
+        <!-- Floating shapes for visual movement -->
+        <div class="break-shapes">
+          <div class="break-shape"></div>
+          <div class="break-shape"></div>
+          <div class="break-shape"></div>
+          <div class="break-shape"></div>
+        </div>
+        <div class="break-container" style="max-width: 600px;">
+          <div id="break-personal-msg" style="margin-bottom: 0.5rem; text-align: center; opacity: 0; transition: opacity 2s ease;">
+            <h2 id="break-greeting" style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem;"></h2>
+            <p id="break-dream-reminder" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;"></p>
+            <div id="break-quote-container" class="quote-block visible" style="border-left: none; padding-left: 0; margin-top: 0.5rem;">
+              <q id="break-quote-text" style="font-size: 1rem; font-style: italic; color: var(--text-secondary);"></q>
+            </div>
+          </div>
+
           <div class="break-header" style="text-align:center;" id="break-default-header">
             <h1 class="break-title" style="margin-bottom:0.5rem;" id="break-main-title">Take a Break.</h1>
             <p class="break-subtitle" id="break-subtitle">Stand up. Look away from the screen. Close your eyes or stretch.</p>
@@ -62,6 +76,30 @@ class BreakScreen {
     }
     
     this.remaining = this.breakDurationSec;
+
+    // Personal Message
+    const name = this.app.currentUser?.name || 'Traveler';
+    const dream = this.app.sessionState.dream || '';
+    const quote = window.FlowQuotes?.getQuote(dream);
+
+    document.getElementById('break-greeting').textContent = `Hey ${name},`;
+    
+    if (dream) {
+      document.getElementById('break-dream-reminder').textContent = `Take a breath. You are building towards: ${dream}`;
+    } else {
+      document.getElementById('break-dream-reminder').style.display = 'none';
+    }
+
+    if (quote && !this.app.sessionState.isMidwayBreak) {
+      document.getElementById('break-quote-text').textContent = `"${quote.text}"`;
+      document.getElementById('break-quote-container').style.display = 'block';
+    } else {
+      document.getElementById('break-quote-container').style.display = 'none';
+    }
+
+    setTimeout(() => {
+      document.getElementById('break-personal-msg').style.opacity = '1';
+    }, 500);
 
     // Reset progress
     const bar = document.getElementById('break-progress-bar');
