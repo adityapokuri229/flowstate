@@ -23,7 +23,7 @@ class BreathingScreen {
     return `
       <div class="screen" id="screen-breathing">
         <div class="breathing-container">
-          <p class="citation" style="margin-bottom:1rem;opacity:0.4;font-size:0.72rem;">
+          <p class="citation" style="margin-bottom:1rem;">
             Box breathing activates the parasympathetic nervous system — Ma et al., 2017
           </p>
 

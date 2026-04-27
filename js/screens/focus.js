@@ -361,7 +361,22 @@ class FocusScreen {
   schedule2020() {
     this.twentyTimer = setTimeout(() => {
       if (this.elapsed < this.durationMs && !this.paused) {
-        this.startEyeRest();
+        // Calculate time remaining in current focus part
+        let remainingInPart = 0;
+        if (this.app.sessionState.totalParts === 2 && this.app.sessionState.currentPart === 1) {
+          remainingInPart = (this.durationMs / 2) - this.elapsed;
+        } else {
+          remainingInPart = this.durationMs - this.elapsed;
+        }
+
+        // If a major break is imminent (within 3 minutes), skip the eye rest
+        // as the user will be transitioning to a much deeper recovery state shortly.
+        if (remainingInPart > 3 * 60 * 1000) {
+          this.startEyeRest();
+        } else {
+          console.log("Eye rest skipped: Session break imminent.");
+          this.schedule2020(); // Reschedule for next 20m cycle (though session will likely end)
+        }
       } else {
         this.schedule2020();
       }

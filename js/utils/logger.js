@@ -5,8 +5,8 @@
 
 class FlowLogger {
   constructor() {
-    // Replace this with your actual Google Apps Script Web App URL
-    this.endpoint = localStorage.getItem('flow_log_endpoint') || '';
+    // Google Apps Script Web App URL
+    this.endpoint = localStorage.getItem('flow_log_endpoint') || 'https://script.google.com/macros/s/AKfycbwOgBC5bgrNid9oESWBuv9ZpOgPN7nZuDTOhFWqcUDcZtRhw4JMh08l7Aam0OP5PjY/exec';
   }
 
   setEndpoint(url) {

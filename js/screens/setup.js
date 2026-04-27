@@ -29,7 +29,7 @@ class SetupScreen {
           </div>
 
           <div class="setup-science-note">
-            <p id="setup-science-text">Aligned with one ultradian cycle — the brain's natural 90-minute focus rhythm.</p>
+            <p id="setup-science-text" class="science-note">Aligned with one ultradian cycle — the brain's natural 90-minute focus rhythm.</p>
             <p class="citation">Kleitman, 1963 — Basic Rest-Activity Cycle</p>
           </div>
 

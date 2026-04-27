@@ -25,14 +25,14 @@ class IntentionScreen {
 
           <div class="form-field" data-delay="3">
             <label for="field-dream">What is your dream? Be specific.</label>
-            <textarea id="field-dream" rows="2" placeholder="IIT JEE AIR under 500. NEET rank 1. Startup acquired. Be precise — vague dreams don't anchor."></textarea>
+            <textarea id="field-dream" rows="2" placeholder="Dream college, specific startup goal, a creative masterpiece... Be precise — vague dreams don't anchor."></textarea>
             <p class="citation">Vivid goal imagery increases task persistence by 60% — Oettingen, WOOP Research, 2015</p>
           </div>
 
-          <div class="form-field" data-delay="4" style="flex-direction: row; align-items: center; gap: 0.5rem; justify-content: flex-start;">
-            <input type="checkbox" id="check-log-consent" style="width: 18px; height: 18px; cursor: pointer;" checked>
-            <label for="check-log-consent" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;">
-              Allow logging my intentions for scientific focus tracking.
+          <div class="form-field" data-delay="4" style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; justify-content: flex-start; margin-top: 0.5rem;">
+            <input type="checkbox" id="check-log-consent" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" checked>
+            <label for="check-log-consent" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; margin-bottom: 0; white-space: nowrap;">
+              Allow logging intentions
             </label>
           </div>
 
