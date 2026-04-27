@@ -16,11 +16,11 @@ class HomeScreen {
             <h1 class="hero-title">FlowState</h1>
             <p class="hero-subtitle">A scientifically grounded environment for deep work, obsession, and total cognitive absorption.</p>
             
-            <div class="name-capture" style="margin-top: 2rem; opacity: 0; transform: translateY(20px); transition: all 1s var(--ease-smooth);">
-              <input type="text" id="field-name" placeholder="What is your name?" style="font-family: inherit; text-align: center; font-size: 1.2rem; background: transparent; border: none; border-bottom: 1px solid rgba(212, 168, 83, 0.4); color: var(--text-primary); padding: 0.5rem; outline: none; width: 250px;" />
+            <div class="name-capture">
+              <input type="text" id="field-name" placeholder="What is your name?" />
             </div>
 
-            <button class="btn btn-large" id="btn-enter" style="margin-top: 1.5rem;">Enter Flow</button>
+            <button class="btn btn-large" id="btn-enter">Enter Flow</button>
           </header>
 
           <div class="feature-grid">
@@ -67,9 +67,9 @@ class HomeScreen {
 
     setTimeout(() => heroTitle.classList.add('visible'), 100);
     setTimeout(() => heroSub.classList.add('visible'), 300);
+    // Animations
     setTimeout(() => {
-      nameCapture.style.opacity = '1';
-      nameCapture.style.transform = 'translateY(0)';
+      nameCapture.classList.add('visible');
     }, 400);
     setTimeout(() => enterBtn.classList.add('visible'), 500);
 

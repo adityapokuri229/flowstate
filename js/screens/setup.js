@@ -12,8 +12,8 @@ class SetupScreen {
   render() {
     return `
       <div class="screen" id="screen-setup">
-        <div class="setup-container" style="transform: translateY(-8vh);">
-          <h2 style="color:var(--text-secondary);font-weight:300;">Session Duration</h2>
+        <div class="setup-container">
+          <h2>Session Duration</h2>
 
           <div class="setup-duration-display" id="setup-duration-display">
             90<span>minutes</span>
@@ -43,7 +43,7 @@ class SetupScreen {
             </div>
           </div>
 
-          <button class="btn btn-large" id="btn-enter-deep-work" style="margin-top:0.5rem;min-width:280px;">
+          <button class="btn btn-large" id="btn-enter-deep-work">
             Confirm & Begin
           </button>
         </div>
