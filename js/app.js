@@ -39,6 +39,7 @@ class FlowStateApp {
       intention: new IntentionScreen(this),
       breathing: new BreathingScreen(this),
       setup: new SetupScreen(this),
+      checklist: new ChecklistScreen(this),
       focus: new FocusScreen(this),
       breakmode: new BreakScreen(this),
       dashboard: new DashboardScreen(this),

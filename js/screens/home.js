@@ -41,6 +41,9 @@ class HomeScreen {
               <p>20/20/20 eye rest prompts to reduce ocular fatigue during deep focus.</p>
             </div>
           </div>
+          <div class="home-watermark">
+            Created by Aditya Pokuri
+          </div>
         </div>
       </div>
     `;

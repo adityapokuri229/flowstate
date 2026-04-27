@@ -2315,3 +2315,72 @@ p, label, span {
   margin-top: 0.5rem;
   display: block;
 }
+
+/* ---------- Checklist Screen ---------- */
+.checklist-container {
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.checklist-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+.checklist-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 3.5rem;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  transition: all 0.4s var(--ease-smooth);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.checklist-bullet {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-glow-strong);
+}
+
+.checklist-item p {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+
+/* Watermark Footer */
+.home-watermark {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-secondary); /* Brighter than tertiary */
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0.8;
+  z-index: 100;
+}

@@ -108,7 +108,7 @@ class SetupScreen {
         el.webkitRequestFullscreen();
       }
 
-      setTimeout(() => this.app.navigateTo('focus'), 500);
+      setTimeout(() => this.app.navigateTo('checklist'), 500);
     });
   }
 
