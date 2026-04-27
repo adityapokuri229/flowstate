@@ -90,10 +90,31 @@ class HomeScreen {
         return;
       }
 
+      // Request fullscreen on mobile/tablet to prevent UI skewing
+      if (/Mobi|Android|iPhone|iPad|Tablet/i.test(navigator.userAgent)) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      }
+
       this.app.currentUser.name = name;
       window.flowLogger.logName(name); // Log to spreadsheet
       this.app.navigateTo('intention');
     });
+
+    // Mobile Recommendation Check
+    if (/Mobi|Android|iPhone/i.test(navigator.userAgent) && !/iPad|Tablet/i.test(navigator.userAgent)) {
+      setTimeout(() => {
+        const note = document.createElement('div');
+        note.className = 'mobile-recommendation-note';
+        note.innerHTML = `
+          <p>We recommend using a bigger screen like a tablet or a laptop for the best experience.</p>
+          <button onclick="this.parentElement.remove()">Dismiss</button>
+        `;
+        document.body.appendChild(note);
+      }, 2000);
+    }
   }
 
   unmount() {}
