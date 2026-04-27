@@ -92,6 +92,7 @@ class BreathingScreen {
 
     switch (this.currentPhase) {
       case 0:
+        window.audioEngine.playInhaleChime();
         circle.classList.add('inhale');
         break;
       case 1:
@@ -99,6 +100,7 @@ class BreathingScreen {
         circle.style.opacity = '1';
         break;
       case 2:
+        window.audioEngine.playExhaleChime();
         circle.classList.add('exhale');
         break;
       case 3:

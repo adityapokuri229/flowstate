@@ -1,7 +1,6 @@
 /* ============================================================
    Screen — Focus Mode (The Core)
    Living, breathing mandala. Progress arc. All controls.
-   Scientifically-grounded interruptions and recovery tools.
    ============================================================ */
 
 class FocusScreen {
@@ -18,6 +17,7 @@ class FocusScreen {
     this.scratchpadOpen = false;
     this.sighActive = false;
     this.keyHandler = null;
+    this.currentAudioMode = 'silence';
   }
 
   render() {
@@ -33,7 +33,7 @@ class FocusScreen {
             <path id="progress-arc-path" class="progress-arc-path" d=""/>
           </svg>
 
-          <!-- Central Mandala — living breathing anchor -->
+          <!-- Central Mandala -->
           <div class="focus-mandala" id="focus-mandala">
             <div class="mandala-ring mandala-ring-1"></div>
             <div class="mandala-ring mandala-ring-2"></div>
@@ -42,11 +42,38 @@ class FocusScreen {
           </div>
         </div>
 
-        <!-- 20/20/20 Pulse Overlay -->
-        <div class="pulse-overlay" id="pulse-overlay">
-          <div class="pulse-breath-circle"></div>
-          <p>Look 20 feet away.<br/>Breathe.</p>
-          <span class="citation">20-20-20 Rule — American Academy of Ophthalmology</span>
+        <!-- 20/20/20 Guided Eye Rest Overlay -->
+        <div class="eyerest-overlay" id="eyerest-overlay">
+          <div class="eyerest-content">
+            <div class="eyerest-phase" id="eyerest-phase-intro">
+              <div class="eyerest-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </div>
+              <h2 class="eyerest-title" id="eyerest-title">Let's rest your eyes</h2>
+              <p class="eyerest-sub">You've been focused. Time for a quick reset.</p>
+            </div>
+
+            <div class="eyerest-phase hidden" id="eyerest-phase-look">
+              <div class="eyerest-eye-anim" id="eyerest-eye-anim">
+                <div class="eye-circle"></div>
+                <div class="eye-pupil" id="eye-pupil"></div>
+              </div>
+              <h2 class="eyerest-title" id="eyerest-look-text">Look away from your screen</h2>
+              <p class="eyerest-sub">Focus on something 20 feet away</p>
+            </div>
+
+            <div class="eyerest-phase hidden" id="eyerest-phase-breathe">
+              <div class="eyerest-breath-circle" id="eyerest-breath-circle"></div>
+              <h2 class="eyerest-title" id="eyerest-breathe-text">Breathe</h2>
+              <p class="eyerest-countdown" id="eyerest-countdown">20</p>
+            </div>
+
+            <span class="citation">20-20-20 Rule — American Academy of Ophthalmology</span>
+            <button class="btn btn-ghost eyerest-dismiss" id="eyerest-dismiss">I'm good, dismiss</button>
+          </div>
         </div>
 
         <!-- Physiological Sigh Overlay -->
@@ -56,16 +83,24 @@ class FocusScreen {
           <p class="sigh-subtitle">Physiological Sigh — Huberman Lab, Stanford</p>
         </div>
 
-        <!-- Controls -->
-        <div class="focus-controls" id="focus-controls">
-          <div class="control-group">
-            <button class="control-btn" id="btn-audio" aria-label="Toggle audio">
-              <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-              <span class="tooltip" id="audio-tooltip">Silence</span>
-            </button>
-            <span class="control-label">Sound</span>
-          </div>
+        <!-- Audio Controls — 3 separate tiles -->
+        <div class="audio-tiles" id="audio-tiles">
+          <button class="audio-tile active" id="audio-silence" data-mode="silence">
+            <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+            Silence
+          </button>
+          <button class="audio-tile" id="audio-brown" data-mode="brown">
+            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+            Brown
+          </button>
+          <button class="audio-tile" id="audio-binaural" data-mode="binaural">
+            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            40Hz
+          </button>
+        </div>
 
+        <!-- Bottom Controls -->
+        <div class="focus-controls" id="focus-controls">
           <div class="control-group">
             <button class="control-btn" id="btn-sigh" aria-label="Physiological sigh">
               <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
@@ -77,9 +112,22 @@ class FocusScreen {
           <div class="control-group">
             <button class="control-btn" id="btn-debug-skip" aria-label="Skip to Feynman">
               <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-              <span class="tooltip">Test: Skip to Break</span>
+              <span class="tooltip">Skip to Break</span>
             </button>
             <span class="control-label">Skip</span>
+          </div>
+        </div>
+
+        <!-- Dev Test Panel -->
+        <div class="dev-panel" id="dev-panel">
+          <div class="dev-panel-toggle" id="dev-panel-toggle">⚙ Dev</div>
+          <div class="dev-panel-content" id="dev-panel-content">
+            <button class="dev-btn" id="dev-eyerest">Eye Rest (20/20/20)</button>
+            <button class="dev-btn" id="dev-sigh">Phys. Sigh</button>
+            <button class="dev-btn" id="dev-short-break">→ Short Break</button>
+            <button class="dev-btn" id="dev-long-break">→ Long Break</button>
+            <button class="dev-btn" id="dev-dashboard">→ Dashboard</button>
+            <button class="dev-btn" id="dev-dream">Dream Whisper</button>
           </div>
         </div>
 
@@ -88,29 +136,43 @@ class FocusScreen {
           <kbd>⌘</kbd> + <kbd>K</kbd> Scratchpad
         </div>
 
-        <!-- Scratchpad -->
+        <!-- Scratchpad & Gemini -->
         <div class="scratchpad" id="scratchpad">
-          <div class="scratchpad-header">
-            <h3>Scratchpad</h3>
-            <button class="scratchpad-close" id="scratchpad-close" aria-label="Close scratchpad">
+          <div class="scratchpad-header" style="justify-content: space-between; border-bottom: 1px solid var(--border);">
+            <div class="scratchpad-tabs" style="display:flex; gap:1rem;">
+              <button class="tab-btn active" id="tab-scratchpad" style="background:none; border:none; color:var(--text-primary); font-family:var(--font-mono); cursor:pointer;">Scratchpad</button>
+              <button class="tab-btn" id="tab-gemini" style="background:none; border:none; color:var(--text-tertiary); font-family:var(--font-mono); cursor:pointer;">Gemini</button>
+            </div>
+            <button class="scratchpad-close" id="scratchpad-close" aria-label="Close">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
             </button>
           </div>
-          <p class="scratchpad-hint">Externalize intrusive thoughts to free working memory. This is saved with your session.</p>
-          <textarea id="scratchpad-textarea" placeholder="Dump distracting thoughts here..."></textarea>
+          <div id="content-scratchpad" style="flex:1; display:flex; flex-direction:column; padding-top:1rem;">
+            <p class="scratchpad-hint">Externalize intrusive thoughts to free working memory.</p>
+            <textarea id="scratchpad-textarea" placeholder="Dump distracting thoughts here..."></textarea>
+          </div>
+          <div id="content-gemini" class="hidden" style="flex:1; padding-top:1rem; height:100%;">
+            <iframe src="https://gemini.google.com/app" style="width:100%; height:100%; border:none; border-radius:8px;"></iframe>
+          </div>
         </div>
       </div>
     `;
   }
 
   mount() {
-    this.durationMs = this.app.sessionState.duration * 60 * 1000;
+    let focusMins = this.app.sessionState.duration || 90;
+    if (this.app.sessionState.totalParts === 2) {
+      focusMins = Math.round(focusMins / 2);
+    }
+    this.durationMs = focusMins * 60 * 1000;
     this.startTime = Date.now();
     this.elapsed = 0;
     this.paused = false;
     this.totalPauseMs = 0;
     this.pulseCount = 0;
     this.dreamWhisperShown = false;
+    this.sighActive = false;
+    this.currentAudioMode = 'silence';
 
     this.buildArcPath();
     this.tick();
@@ -120,18 +182,19 @@ class FocusScreen {
       window.audioEngine.playFocusBell();
     }, 500);
 
-    // Initial Dream Whisper
+    // Dream Whisper after 2 min
     if (this.app.sessionState.dream) {
-      setTimeout(() => this.triggerDreamWhisper(), 120 * 1000); // 2 minutes
+      setTimeout(() => this.triggerDreamWhisper(), 120 * 1000);
     }
 
     this.schedule2020();
 
-    // Audio
-    document.getElementById('btn-audio').addEventListener('click', () => {
-      const mode = window.audioEngine.cycleMode();
-      const labels = { binaural: '40Hz Binaural', brown: 'Brown Noise', silence: 'Silence' };
-      document.getElementById('audio-tooltip').textContent = labels[mode] || 'Silence';
+    // Audio tiles
+    document.querySelectorAll('.audio-tile').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        this.setAudioMode(mode);
+      });
     });
 
     // Sigh
@@ -139,11 +202,31 @@ class FocusScreen {
       if (!this.sighActive) this.startSigh();
     });
 
-    // Debug Skip
+    // Skip
     document.getElementById('btn-debug-skip').addEventListener('click', () => this.complete());
 
-    // Scratchpad
+    // Eye rest dismiss
+    document.getElementById('eyerest-dismiss').addEventListener('click', () => this.dismissEyeRest());
+
+    // Scratchpad & Gemini
     document.getElementById('scratchpad-close').addEventListener('click', () => this.closeScratchpad());
+    const tabScratchpad = document.getElementById('tab-scratchpad');
+    const tabGemini = document.getElementById('tab-gemini');
+    const contentScratchpad = document.getElementById('content-scratchpad');
+    const contentGemini = document.getElementById('content-gemini');
+
+    tabScratchpad.addEventListener('click', () => {
+      tabScratchpad.style.color = 'var(--text-primary)';
+      tabGemini.style.color = 'var(--text-tertiary)';
+      contentScratchpad.classList.remove('hidden');
+      contentGemini.classList.add('hidden');
+    });
+    tabGemini.addEventListener('click', () => {
+      tabGemini.style.color = 'var(--text-primary)';
+      tabScratchpad.style.color = 'var(--text-tertiary)';
+      contentGemini.classList.remove('hidden');
+      contentScratchpad.classList.add('hidden');
+    });
 
     // Keyboard
     this.keyHandler = (e) => {
@@ -157,14 +240,26 @@ class FocusScreen {
     };
     document.addEventListener('keydown', this.keyHandler);
 
-    // Particles
-    this.setupParticles();
+    // Dev panel
+    this.setupDevPanel();
 
-    // Fade in shortcut hint then fade out
+    // Fade out shortcut hint
     const hint = document.querySelector('.shortcut-hint');
     if (hint) {
       setTimeout(() => { hint.style.opacity = '0'; hint.style.transition = 'opacity 3s'; }, 8000);
     }
+  }
+
+  /* ---- Audio Mode ---- */
+
+  setAudioMode(mode) {
+    this.currentAudioMode = mode;
+    window.audioEngine.setMode(mode);
+
+    // Update active tile
+    document.querySelectorAll('.audio-tile').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
   }
 
   /* ---- Progress Arc ---- */
@@ -222,42 +317,109 @@ class FocusScreen {
   /* ---- Dream Whisper ---- */
 
   triggerDreamWhisper() {
-    // Only show the pulse-triggered one once. Initial timer is separate.
     const whisperEl = document.getElementById('dream-whisper');
     if (whisperEl && this.app.sessionState.dream) {
       whisperEl.textContent = this.app.sessionState.dream;
       whisperEl.style.opacity = '0.35';
       setTimeout(() => {
         whisperEl.style.opacity = '0';
-      }, 6000); // fade transition handles the 4s out
+      }, 6000);
     }
   }
 
-  /* ---- 20/20/20 Rule ---- */
+  /* ---- 20/20/20 Guided Eye Rest ---- */
 
   schedule2020() {
     this.twentyTimer = setTimeout(() => {
       if (this.elapsed < this.durationMs && !this.paused) {
-        this.show2020Pulse();
+        this.startEyeRest();
       } else {
-        this.schedule2020(); // check again
+        this.schedule2020();
       }
-    }, 20 * 60 * 1000); // 20 mins
+    }, 20 * 60 * 1000);
   }
 
-  show2020Pulse() {
+  async startEyeRest() {
     this.pulseCount++;
-    const overlay = document.getElementById('pulse-overlay');
+    this.eyerestActive = true;
+    this.paused = true;
+    this.pauseStart = Date.now();
+
+    const overlay = document.getElementById('eyerest-overlay');
+    const phaseIntro = document.getElementById('eyerest-phase-intro');
+    const phaseLook = document.getElementById('eyerest-phase-look');
+    const phaseBreathe = document.getElementById('eyerest-phase-breathe');
+    const countdown = document.getElementById('eyerest-countdown');
+
+    // Reset phases
+    phaseIntro.classList.remove('hidden');
+    phaseLook.classList.add('hidden');
+    phaseBreathe.classList.add('hidden');
+
+    // Play bell chime
+    window.audioEngine.playRestBell();
+
+    // Show overlay
     overlay.classList.add('active');
-    
-    setTimeout(() => {
-      overlay.classList.remove('active');
-      if (this.pulseCount === 2) {
-        // Trigger whisper immediately after the second 20-min pulse dismisses
-        setTimeout(() => this.triggerDreamWhisper(), 1000);
-      }
-      this.schedule2020(); // Schedule next 20 mins
-    }, 20000); // 20 seconds
+
+    // Phase 1: Intro (3 seconds)
+    await this.sleep(3000);
+    if (!this.eyerestActive) return;
+
+    // Phase 2: Look away with eye animation (5 seconds)
+    phaseIntro.classList.add('hidden');
+    phaseLook.classList.remove('hidden');
+
+    // Animate pupil looking away
+    const pupil = document.getElementById('eye-pupil');
+    pupil.classList.add('look-away');
+    await this.sleep(5000);
+    if (!this.eyerestActive) return;
+
+    // Phase 3: Breathing countdown (20 seconds)
+    phaseLook.classList.add('hidden');
+    phaseBreathe.classList.remove('hidden');
+
+    const breathCircle = document.getElementById('eyerest-breath-circle');
+    breathCircle.classList.add('breathing');
+
+    for (let i = 20; i > 0; i--) {
+      if (!this.eyerestActive) return;
+      countdown.textContent = i;
+      await this.sleep(1000);
+    }
+
+    // Play a soft bell to signal end
+    window.audioEngine.playRestBell();
+    await this.sleep(1000);
+
+    this.dismissEyeRest();
+  }
+
+  dismissEyeRest() {
+    if (!this.eyerestActive) return;
+    this.eyerestActive = false;
+
+    const overlay = document.getElementById('eyerest-overlay');
+    overlay.classList.remove('active');
+
+    // Reset phases for next time
+    document.getElementById('eyerest-phase-intro').classList.remove('hidden');
+    document.getElementById('eyerest-phase-look').classList.add('hidden');
+    document.getElementById('eyerest-phase-breathe').classList.add('hidden');
+    const pupil = document.getElementById('eye-pupil');
+    if (pupil) pupil.classList.remove('look-away');
+    const breathCircle = document.getElementById('eyerest-breath-circle');
+    if (breathCircle) breathCircle.classList.remove('breathing');
+
+    // Resume session
+    this.totalPauseMs += Date.now() - this.pauseStart;
+    this.paused = false;
+
+    if (this.pulseCount === 2) {
+      setTimeout(() => this.triggerDreamWhisper(), 1000);
+    }
+    this.schedule2020();
   }
 
   /* ---- Physiological Sigh ---- */
@@ -274,7 +436,6 @@ class FocusScreen {
     overlay.classList.add('active');
 
     for (let cycle = 0; cycle < 3; cycle++) {
-      // Double inhale
       text.textContent = 'Inhale';
       circle.style.transform = 'scale(0.6)';
       await this.sleep(200);
@@ -286,13 +447,11 @@ class FocusScreen {
       circle.style.transform = 'scale(1.15)';
       await this.sleep(2000);
 
-      // Extended exhale
       text.textContent = 'Exhale slowly';
       circle.style.transition = 'transform 6s var(--ease-breathe)';
       circle.style.transform = 'scale(0.45)';
       await this.sleep(6000);
 
-      // Reset
       circle.style.transition = 'transform 0.8s var(--ease-breathe)';
       await this.sleep(500);
     }
@@ -330,16 +489,44 @@ class FocusScreen {
     this.app.sessionState.scratchpad_notes = textarea.value;
   }
 
-  /* ---- Particles ---- */
+  /* ---- Dev Panel ---- */
 
-  setupParticles() {
-    const canvas = document.getElementById('particle-canvas');
-    if (!canvas) return;
-    if (!window.particleSystem) {
-      window.particleSystem = new ParticleSystem(canvas);
-    }
-    const user = this.app.currentUser;
-    if (user) window.particleSystem.setTier(user.total_hours || 0);
+  setupDevPanel() {
+    const toggle = document.getElementById('dev-panel-toggle');
+    const content = document.getElementById('dev-panel-content');
+
+    toggle.addEventListener('click', () => {
+      content.classList.toggle('open');
+    });
+
+    document.getElementById('dev-eyerest').addEventListener('click', () => {
+      this.startEyeRest();
+    });
+
+    document.getElementById('dev-sigh').addEventListener('click', () => {
+      if (!this.sighActive) this.startSigh();
+    });
+
+    document.getElementById('dev-short-break').addEventListener('click', () => {
+      this.cleanup();
+      this.app.sessionState.isMidwayBreak = true;
+      this.app.navigateTo('breakmode');
+    });
+
+    document.getElementById('dev-long-break').addEventListener('click', () => {
+      this.cleanup();
+      this.app.sessionState.isMidwayBreak = false;
+      this.app.navigateTo('breakmode');
+    });
+
+    document.getElementById('dev-dashboard').addEventListener('click', () => {
+      this.cleanup();
+      this.app.navigateTo('dashboard');
+    });
+
+    document.getElementById('dev-dream').addEventListener('click', () => {
+      this.triggerDreamWhisper();
+    });
   }
 
   /* ---- Complete ---- */
@@ -350,13 +537,24 @@ class FocusScreen {
 
     window.audioEngine.setMode('silence');
     this.cleanup();
-    this.app.navigateTo('feynman');
+    
+    // Check if we need to take a midway break or go to the final break
+    if (this.app.sessionState.totalParts === 2 && this.app.sessionState.currentPart === 1) {
+      this.app.sessionState.currentPart = 2;
+      this.app.sessionState.isMidwayBreak = true;
+      this.app.navigateTo('breakmode');
+    } else {
+      this.app.sessionState.isMidwayBreak = false;
+      this.app.navigateTo('breakmode');
+    }
   }
 
   cleanup() {
     if (this.rafId) cancelAnimationFrame(this.rafId);
-    if (this.twentyTimer) clearInterval(this.twentyTimer);
+    if (this.twentyTimer) clearTimeout(this.twentyTimer);
     if (this.keyHandler) document.removeEventListener('keydown', this.keyHandler);
+    this.eyerestActive = false;
+    this.sighActive = false;
   }
 
   unmount() { this.cleanup(); }

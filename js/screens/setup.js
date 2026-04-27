@@ -1,6 +1,7 @@
 /* ============================================================
    Screen C — Session Setup
-   Duration selector with scientific context and smooth entry
+   Duration selector with scientific context, session preview,
+   and smooth entry
    ============================================================ */
 
 class SetupScreen {
@@ -32,8 +33,18 @@ class SetupScreen {
             <p class="citation">Kleitman, 1963 — Basic Rest-Activity Cycle</p>
           </div>
 
+          <!-- Session Preview -->
+          <div class="session-preview" id="session-preview">
+            <p class="session-preview-title">Session Plan</p>
+            <div class="session-timeline" id="session-timeline"></div>
+            <div class="session-legend">
+              <span class="legend-item"><span class="legend-dot eye"></span> Eye Rest</span>
+              <span class="legend-item"><span class="legend-dot brk"></span> Break</span>
+            </div>
+          </div>
+
           <button class="btn btn-large" id="btn-enter-deep-work" style="margin-top:0.5rem;min-width:280px;">
-            Enter Deep Work
+            Confirm & Begin
           </button>
         </div>
       </div>
@@ -49,6 +60,9 @@ class SetupScreen {
 
     this._listenersAttached = true;
 
+    // Initial preview
+    this.updatePreview(parseInt(slider.value, 10));
+
     slider.addEventListener('input', () => {
       const val = parseInt(slider.value, 10);
       display.innerHTML = `${val}<span>minutes</span>`;
@@ -63,6 +77,8 @@ class SetupScreen {
       } else {
         scienceText.textContent = 'Extended session. Ensure hydration and leverage the 20/20/20 eye-rest prompts.';
       }
+
+      this.updatePreview(val);
     });
 
     button.addEventListener('click', (e) => {
@@ -77,6 +93,9 @@ class SetupScreen {
 
       const duration = parseInt(slider.value, 10);
       this.app.sessionState.duration = duration;
+      this.app.sessionState.isMidwayBreak = false;
+      this.app.sessionState.totalParts = duration >= 60 ? 2 : 1;
+      this.app.sessionState.currentPart = 1;
 
       // Init audio context on user gesture
       window.audioEngine.init();
@@ -91,6 +110,39 @@ class SetupScreen {
 
       setTimeout(() => this.app.navigateTo('focus'), 500);
     });
+  }
+
+  updatePreview(minutes) {
+    const timeline = document.getElementById('session-timeline');
+
+    // Calculate events
+    const events = [];
+
+    // Eye rests every 20 minutes
+    for (let t = 20; t < minutes; t += 20) {
+      events.push({ time: t, type: 'eye', label: 'Eye Rest' });
+    }
+
+    // Mid-session Short Break if 60 mins or longer
+    if (minutes >= 60) {
+      const mid = Math.round(minutes / 2);
+      events.push({ time: mid, type: 'brk', label: 'Short Break' });
+    }
+
+    // Break at the end
+    const breakMin = Math.max(5, Math.round(minutes * 0.2));
+    events.push({ time: minutes, type: 'brk', label: `Long Break` });
+
+    // Sort
+    events.sort((a, b) => a.time - b.time);
+
+    // Render timeline markers
+    let markersHtml = '';
+    for (const e of events) {
+      const pct = (e.time / minutes) * 100;
+      markersHtml += `<div class="timeline-marker ${e.type}" style="left:${pct}%" title="${e.label}"></div>`;
+    }
+    timeline.innerHTML = markersHtml;
   }
 }
 

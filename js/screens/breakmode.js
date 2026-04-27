@@ -1,7 +1,5 @@
 /* ============================================================
-   Screen — Break Protocol
-   Dynamic break with floating shapes, prompt rotation,
-   NSDR option, strict lockout, and theme interpolation
+   Screen — Break Protocol (Simple Break + Optional Meditation)
    ============================================================ */
 
 class BreakScreen {
@@ -10,39 +8,41 @@ class BreakScreen {
     this.breakDurationSec = 0;
     this.remaining = 0;
     this.timer = null;
-    this.promptTimer = null;
-    this.promptIndex = 0;
+    this.breathingActive = false;
   }
-
 
   render() {
     return `
-      <div class="screen" id="screen-break">
-        <!-- Floating shapes for visual movement -->
-        <div class="break-shapes">
-          <div class="break-shape"></div>
-          <div class="break-shape"></div>
-          <div class="break-shape"></div>
-          <div class="break-shape"></div>
-        </div>
-        <div class="break-container">
-          <div class="break-timer">
-            <span id="break-timer">00:00</span>
+      <div class="screen" id="screen-breakmode">
+        <div class="break-container" style="justify-content: center; height: 100vh; gap: 2rem;">
+          
+          <div class="break-header" style="text-align:center;" id="break-default-header">
+            <h1 class="break-title" style="margin-bottom:0.5rem;" id="break-main-title">Take a Break.</h1>
+            <p class="break-subtitle" id="break-subtitle">Stand up. Look away from the screen. Close your eyes or stretch.</p>
           </div>
 
-          <div class="break-task-card" id="break-task-card">
-            <h3 id="task-category"></h3>
-            <h2 id="task-instruction"></h2>
-            <p id="task-rationale"></p>
-            <button class="btn btn-ghost break-task-done-btn" id="btn-task-done">Mark Complete</button>
+          <div class="break-progress-container" style="width: 100%; max-width: 400px; margin: 0 auto; background: var(--surface-light); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 1rem; margin-bottom: 1rem;">
+            <div id="break-progress-bar" style="height: 100%; width: 0%; background: var(--accent); transition: width 1s linear;"></div>
           </div>
 
-          <button class="btn btn-ghost break-nsdr-btn" id="btn-nsdr" style="display:none;">
-            Begin NSDR — 10 min
-          </button>
-          <button id="btn-skip-break" class="btn btn-ghost" style="margin-top: 2rem; font-size: 0.7rem; padding: 0.5rem 1rem; opacity: 0.4;">
-            Skip Break (Testing)
-          </button>
+          <div id="break-default-actions" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap: 1rem;">
+            <button id="btn-start-meditation" class="btn btn-outline" style="min-width: 280px;">
+              🫁 Guided Box Breathing
+            </button>
+            <button id="btn-skip-break" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.5rem 1rem; opacity: 0.35;">
+              Skip Break
+            </button>
+          </div>
+
+          <!-- Active Meditation UI (Hidden by default) -->
+          <div class="break-breath-active hidden" id="break-breath-active" style="display:flex; flex-direction:column; align-items:center;">
+            <div class="break-breath-circle" id="break-breath-circle"></div>
+            <p class="break-breath-text" id="break-breath-text" style="font-size: 2rem; margin-top:2rem;">Starting...</p>
+            <button id="btn-stop-meditation" class="btn btn-ghost" style="margin-top: 2rem; font-size: 0.8rem; opacity: 0.4;">
+              Stop Breathing
+            </button>
+          </div>
+          
         </div>
       </div>
     `;
@@ -50,115 +50,134 @@ class BreakScreen {
 
   mount() {
     const focusMinutes = this.app.sessionState.duration || 90;
-    const breakMinutes = Math.round(focusMinutes * 0.2);
-    this.breakDurationSec = breakMinutes * 60;
+    
+    if (this.app.sessionState.isMidwayBreak) {
+      this.breakDurationSec = 7 * 60;
+      document.getElementById('break-main-title').textContent = "Short Break.";
+    } else {
+      const breakMinutes = Math.max(5, Math.round(focusMinutes * 0.2));
+      this.breakDurationSec = breakMinutes * 60;
+      document.getElementById('break-main-title').textContent = "Deep Restoration.";
+    }
+    
     this.remaining = this.breakDurationSec;
 
-    // Skip Break (Testing)
-    document.getElementById('btn-skip-break').addEventListener('click', () => this.complete());
+    // Reset progress
+    const bar = document.getElementById('break-progress-bar');
+    if (bar) bar.style.width = '0%';
 
-    // Switch to break theme
-    window.audioEngine.playBreakBell(); // audio bell
-    document.body.classList.add('theme-break');
-
-    this.setupTaskCard();
+    // Play bell
+    window.audioEngine.playBreakBell();
 
     this.timer = setInterval(() => this.tickCountdown(), 1000);
 
-    // NSDR option
-    const nsdrBtn = document.getElementById('btn-nsdr');
-    if (this.breakDurationSec >= 600) {
-      nsdrBtn.style.display = 'block';
-      nsdrBtn.addEventListener('click', () => {
-        window.audioEngine.setMode('pad');
-        nsdrBtn.textContent = 'NSDR Audio Playing';
-        nsdrBtn.style.pointerEvents = 'none';
-        nsdrBtn.style.opacity = '0.5';
-      });
+    // Event listeners
+    document.getElementById('btn-skip-break').addEventListener('click', () => this.complete());
+    document.getElementById('btn-start-meditation').addEventListener('click', () => this.startMeditationUI());
+    document.getElementById('btn-stop-meditation').addEventListener('click', () => this.stopMeditationUI());
+  }
+
+  startMeditationUI() {
+    document.getElementById('break-default-header').classList.add('hidden');
+    document.getElementById('break-default-actions').classList.add('hidden');
+    
+    const activeDiv = document.getElementById('break-breath-active');
+    activeDiv.classList.remove('hidden');
+    // Ensure display flex is active when not hidden (since hidden overrides display)
+    activeDiv.style.display = 'flex';
+
+    this.startAutoMeditation();
+  }
+
+  stopMeditationUI() {
+    this.breathingActive = false;
+    document.getElementById('break-default-header').classList.remove('hidden');
+    document.getElementById('break-default-actions').classList.remove('hidden');
+    
+    const activeDiv = document.getElementById('break-breath-active');
+    activeDiv.classList.add('hidden');
+    activeDiv.style.display = 'none';
+  }
+
+  async startAutoMeditation() {
+    if (this.breathingActive) return;
+    this.breathingActive = true;
+    
+    const circle = document.getElementById('break-breath-circle');
+    const text = document.getElementById('break-breath-text');
+
+    // Box breathing: 4s inhale, 4s hold, 4s exhale, 4s hold
+    while (this.breathingActive) {
+      // Inhale
+      window.audioEngine.playInhaleChime();
+      text.textContent = 'Inhale';
+      circle.className = 'break-breath-circle inhale';
+      await this.sleep(4000);
+      if (!this.breathingActive) return;
+
+      // Hold
+      text.textContent = 'Hold';
+      circle.className = 'break-breath-circle hold';
+      await this.sleep(4000);
+      if (!this.breathingActive) return;
+
+      // Exhale
+      window.audioEngine.playExhaleChime();
+      text.textContent = 'Exhale';
+      circle.className = 'break-breath-circle exhale';
+      await this.sleep(4000);
+      if (!this.breathingActive) return;
+
+      // Hold
+      text.textContent = 'Hold';
+      circle.className = 'break-breath-circle hold';
+      await this.sleep(4000);
+      if (!this.breathingActive) return;
     }
-
-    this.updateTimerDisplay();
   }
 
-  setupTaskCard() {
-    const tasks = [
-      { cat: '🤸 Body Reset', text: '10 slow bodyweight squats', rationale: 'Physical movement restores cortical blood flow.' },
-      { cat: '🤸 Body Reset', text: '20 shoulder circles', rationale: 'Physical movement restores cortical blood flow.' },
-      { cat: '🤸 Body Reset', text: 'Walk to get water and drink it standing', rationale: 'Physical movement restores cortical blood flow.' },
-      { cat: '🤸 Body Reset', text: '30-second wall sit', rationale: 'Physical movement restores cortical blood flow.' },
-      { cat: '🤸 Body Reset', text: 'Stretch arms overhead & hold for 20 breaths', rationale: 'Physical movement restores cortical blood flow.' },
-      { cat: '🧠 Mind Detach', text: 'Write down one thing you are grateful for', rationale: 'A domain-switch provides fastest cognitive recovery.' },
-      { cat: '🧠 Mind Detach', text: 'Sketch anything from memory', rationale: 'A domain-switch provides fastest cognitive recovery.' },
-      { cat: '🧠 Mind Detach', text: 'Recall your last meal in vivid sensory detail', rationale: 'A domain-switch provides fastest cognitive recovery.' },
-      { cat: '🧠 Mind Detach', text: 'Hum or sing quietly for 60 seconds', rationale: 'A domain-switch provides fastest cognitive recovery.' },
-      { cat: '🧠 Mind Detach', text: 'Look out a window and name 5 things you see', rationale: 'A domain-switch provides fastest cognitive recovery.' },
-      { cat: '🫁 Breath Ritual', text: '4 rounds of Box Breathing (4s in, hold, out, hold)', rationale: 'Nervous system reset via parasympathetic activation.' },
-      { cat: '🫁 Breath Ritual', text: 'Physiological sigh — 3 cycles', rationale: 'Nervous system reset via parasympathetic activation.' },
-      { cat: '🫁 Breath Ritual', text: 'Alternate nostril breathing for 60 seconds', rationale: 'Nervous system reset via parasympathetic activation.' }
-    ];
-
-    const task = tasks[Math.floor(Math.random() * tasks.length)];
-
-    document.getElementById('task-category').textContent = task.cat;
-    document.getElementById('task-instruction').textContent = task.text;
-    document.getElementById('task-rationale').textContent = task.rationale;
-
-    const doneBtn = document.getElementById('btn-task-done');
-    doneBtn.addEventListener('click', () => {
-      doneBtn.textContent = '✓ Done';
-      doneBtn.style.pointerEvents = 'none';
-      doneBtn.style.opacity = '0.5';
-    });
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
+
+  /* ---- Progress ---- */
 
   tickCountdown() {
     this.remaining--;
+    
+    const progressPct = ((this.breakDurationSec - this.remaining) / this.breakDurationSec) * 100;
+    const bar = document.getElementById('break-progress-bar');
+    if (bar) {
+      bar.style.width = Math.min(progressPct, 100) + '%';
+    }
 
     if (this.remaining <= 0) {
       this.remaining = 0;
-      this.updateTimerDisplay();
       this.complete();
-      return;
-    }
-
-    // At 2:00 remaining, interpolate back to focus theme
-    if (this.remaining === 120) {
-      document.body.classList.remove('theme-break');
-    }
-
-    this.updateTimerDisplay();
-  }
-
-  updateTimerDisplay() {
-    const min = Math.floor(this.remaining / 60);
-    const sec = this.remaining % 60;
-    const display = document.getElementById('break-timer');
-    if (display) {
-      display.textContent = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
     }
   }
-
-
 
   complete() {
     this.cleanup();
     window.audioEngine.stopNSDR();
-
-    // 5-second breath transition back to focus
     this.app.showBreathTransition(() => {
-      document.body.classList.remove('theme-break');
-      this.app.navigateTo('dashboard');
+      if (this.app.sessionState.isMidwayBreak) {
+        this.app.navigateTo('focus');
+      } else {
+        this.app.navigateTo('dashboard');
+      }
     });
   }
 
   cleanup() {
     if (this.timer) clearInterval(this.timer);
-    if (this.promptTimer) clearInterval(this.promptTimer);
     this.timer = null;
-    this.promptTimer = null;
+    this.breathingActive = false;
   }
 
-  unmount() { this.cleanup(); }
+  unmount() { 
+    this.cleanup(); 
+  }
 }
 
 window.BreakScreen = BreakScreen;

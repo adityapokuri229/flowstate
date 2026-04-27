@@ -24,20 +24,9 @@ class IntentionScreen {
             <p>Clarity of purpose is the first gate to flow. Name what matters for this session.</p>
           </div>
 
-          <div class="form-field" data-delay="0">
-            <label for="field-focus">What is the focus?</label>
-            <textarea id="field-focus" rows="2" placeholder="The specific subject or project you will dedicate this session to..." required></textarea>
-          </div>
-
           <div class="form-field" data-delay="1">
             <label for="field-milestone">What is the specific milestone?</label>
             <textarea id="field-milestone" rows="2" placeholder="A concrete, verifiable outcome — something you can point to when finished..." required></textarea>
-          </div>
-
-          <div class="form-field" data-delay="2">
-            <label for="field-distraction">Identify one potential distraction and your plan to ignore it</label>
-            <textarea id="field-distraction" rows="2" placeholder="Name the threat. Having a plan reduces the prefrontal load of resisting it..."></textarea>
-            <p class="citation">Implementation intentions reduce distraction susceptibility — Gollwitzer, 1999</p>
           </div>
 
           <div class="form-field" data-delay="3">
@@ -46,7 +35,7 @@ class IntentionScreen {
             <p class="citation">Vivid goal imagery increases task persistence by 60% — Oettingen, WOOP Research, 2015</p>
           </div>
 
-          <div class="form-field" data-delay="4">
+          <div class="form-field" data-delay="2">
             <button type="submit" class="btn btn-large" id="btn-intention-continue" style="width:100%;">
               Begin Breathing Ritual
             </button>
@@ -99,16 +88,14 @@ class IntentionScreen {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const focus = document.getElementById('field-focus').value.trim();
       const milestone = document.getElementById('field-milestone').value.trim();
-      const distraction = document.getElementById('field-distraction').value.trim();
       const dream = document.getElementById('field-dream').value.trim();
 
-      if (!focus || !milestone) return;
+      if (!milestone) return;
 
-      this.app.sessionState.subject = focus;
+      this.app.sessionState.subject = 'Flow Session'; // Default value since focus was removed
       this.app.sessionState.milestone = milestone;
-      this.app.sessionState.distraction = distraction;
+      this.app.sessionState.distraction = '';
       this.app.sessionState.dream = dream;
 
       this.app.navigateTo('breathing');

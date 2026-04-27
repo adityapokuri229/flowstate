@@ -306,6 +306,80 @@ class AudioEngine {
     osc.start(now);
     osc.stop(now + 4);
   }
+
+  playRestBell() {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    
+    // Gentle tibetan bowl — 396Hz with harmonic
+    const osc1 = this.ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.value = 396;
+    
+    const gain1 = this.ctx.createGain();
+    gain1.gain.setValueAtTime(0, now);
+    gain1.gain.linearRampToValueAtTime(0.2, now + 0.08);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
+    
+    const osc2 = this.ctx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.value = 792;
+    
+    const gain2 = this.ctx.createGain();
+    gain2.gain.setValueAtTime(0, now);
+    gain2.gain.linearRampToValueAtTime(0.06, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+    
+    osc1.connect(gain1);
+    gain1.connect(this.ctx.destination);
+    osc2.connect(gain2);
+    gain2.connect(this.ctx.destination);
+    
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 3.5);
+    osc2.stop(now + 2.5);
+  }
+
+  playInhaleChime() {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    
+    // Low tone — signals inhale
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 280;
+    
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.15, now + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 1.8);
+  }
+
+  playExhaleChime() {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    
+    // High tone — signals exhale
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 528;
+    
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.12, now + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 2);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 2);
+  }
 }
 
 window.audioEngine = new AudioEngine();

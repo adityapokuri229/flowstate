@@ -17,7 +17,6 @@ class FlowStateApp {
       distraction: '',
       duration: 90,
       scratchpad_notes: '',
-      feynman_dump: '',
     };
   }
 
@@ -40,7 +39,6 @@ class FlowStateApp {
       breathing: new BreathingScreen(this),
       setup: new SetupScreen(this),
       focus: new FocusScreen(this),
-      feynman: new FeynmanScreen(this),
       breakmode: new BreakScreen(this),
       dashboard: new DashboardScreen(this),
     };
@@ -53,9 +51,8 @@ class FlowStateApp {
         <p class="breath-transition-text">Returning to stillness…</p>
       </div>
     `;
-    const particleCanvas = `<canvas id="particle-canvas"></canvas>`;
 
-    let html = particleCanvas;
+    let html = '';
     for (const [name, screen] of Object.entries(this.screenInstances)) {
       html += screen.render();
     }
@@ -112,7 +109,6 @@ class FlowStateApp {
       distraction: '',
       duration: 90,
       scratchpad_notes: '',
-      feynman_dump: '',
     };
   }
 
