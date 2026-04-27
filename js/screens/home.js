@@ -79,10 +79,19 @@ class HomeScreen {
 
     enterBtn.addEventListener('click', async () => {
       const name = nameField.value.trim();
-      if (name) {
-        this.app.currentUser.name = name;
-        window.flowLogger.logName(name); // Log to spreadsheet
+      if (!name) {
+        // Shake animation for mandatory field
+        nameField.style.borderBottomColor = 'var(--error, #ff4444)';
+        nameCapture.classList.add('shake');
+        setTimeout(() => {
+          nameCapture.classList.remove('shake');
+          nameField.style.borderBottomColor = 'rgba(212, 168, 83, 0.4)';
+        }, 500);
+        return;
       }
+
+      this.app.currentUser.name = name;
+      window.flowLogger.logName(name); // Log to spreadsheet
       this.app.navigateTo('intention');
     });
   }
