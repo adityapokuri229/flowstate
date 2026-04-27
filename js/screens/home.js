@@ -40,6 +40,7 @@ class HomeScreen {
               <h3>Eye Rest Protocol</h3>
               <p>20/20/20 eye rest prompts to reduce ocular fatigue during deep focus.</p>
             </div>
+          </div>
         </div>
       </div>
     `;

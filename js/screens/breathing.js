@@ -101,7 +101,6 @@ class BreathingScreen {
         circle.classList.add('inhale');
         break;
       case 1:
-        window.audioEngine.playInhaleChime();
         // Hold full scale
         circle.style.transform = 'scale(1.1)';
         circle.style.opacity = '1';
@@ -113,7 +112,6 @@ class BreathingScreen {
         circle.classList.add('exhale');
         break;
       case 3:
-        window.audioEngine.playExhaleChime();
         // Hold small scale
         circle.style.transform = 'scale(0.5)';
         circle.style.opacity = '0.5';
