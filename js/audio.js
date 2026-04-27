@@ -94,7 +94,7 @@ class AudioEngine {
     oscL.type = 'sine';
     oscL.frequency.value = 200;
     const gainL = this.ctx.createGain();
-    gainL.gain.value = 0.35; // Boosted
+    gainL.gain.value = 0.7; 
     oscL.connect(gainL);
     gainL.connect(merger, 0, 0);
 
@@ -102,7 +102,7 @@ class AudioEngine {
     oscR.type = 'sine';
     oscR.frequency.value = 240;
     const gainR = this.ctx.createGain();
-    gainR.gain.value = 0.35; // Boosted
+    gainR.gain.value = 0.7; 
     oscR.connect(gainR);
     gainR.connect(merger, 0, 1);
 
