@@ -57,6 +57,9 @@ class BreathingScreen {
       this._listenersAttached = true;
     }
 
+    const skipBtn = document.getElementById('btn-skip-breathing');
+    if (skipBtn) skipBtn.style.display = this.app.isDev ? 'block' : 'none';
+
     if (this._sessionActive) return;
     this._sessionActive = true;
     setTimeout(() => this.startCycle(), 1000);
@@ -93,17 +96,23 @@ class BreathingScreen {
     switch (this.currentPhase) {
       case 0:
         window.audioEngine.playInhaleChime();
+        circle.style.transform = '';
+        circle.style.opacity = '';
         circle.classList.add('inhale');
         break;
       case 1:
+        // Hold full scale
         circle.style.transform = 'scale(1.1)';
         circle.style.opacity = '1';
         break;
       case 2:
         window.audioEngine.playExhaleChime();
+        circle.style.transform = '';
+        circle.style.opacity = '';
         circle.classList.add('exhale');
         break;
       case 3:
+        // Hold small scale
         circle.style.transform = 'scale(0.5)';
         circle.style.opacity = '0.5';
         break;

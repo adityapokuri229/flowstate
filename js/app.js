@@ -10,6 +10,7 @@ class FlowStateApp {
     this.screenInstances = {};
     this.currentUser = null;
     this.sessionCount = 0;
+    this.isDev = new URLSearchParams(window.location.search).get('dev') === 'true';
 
     this.sessionState = {
       subject: '',

@@ -102,19 +102,20 @@ class FocusScreen {
         <!-- Bottom Controls -->
         <div class="focus-controls" id="focus-controls">
           <div class="control-group">
-            <button class="control-btn" id="btn-sigh" aria-label="Physiological sigh">
-              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-              <span class="tooltip">Physiological Sigh (30s)</span>
+            <button class="control-btn" id="btn-scratchpad" aria-label="Toggle Scratchpad">
+              <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              <span class="tooltip">Scratchpad (⌘K)</span>
             </button>
-            <span class="control-label">Breathe</span>
+            <span class="control-label">Scratchpad</span>
           </div>
 
           <div class="control-group">
-            <button class="control-btn" id="btn-debug-skip" aria-label="Skip to Feynman">
-              <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-              <span class="tooltip">Skip to Break</span>
+            <button class="control-btn" id="btn-sigh" aria-label="Physiological sigh">
+              <!-- Simplified Physiological Rest Icon -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>
+              <span class="tooltip">Physiological Sigh (30s)</span>
             </button>
-            <span class="control-label">Skip</span>
+            <span class="control-label">Breathe</span>
           </div>
         </div>
 
@@ -137,11 +138,11 @@ class FocusScreen {
         </div>
 
         <!-- Scratchpad & Gemini -->
+        <!-- Scratchpad -->
         <div class="scratchpad" id="scratchpad">
           <div class="scratchpad-header" style="justify-content: space-between; border-bottom: 1px solid var(--border);">
             <div class="scratchpad-tabs" style="display:flex; gap:1rem;">
-              <button class="tab-btn active" id="tab-scratchpad" style="background:none; border:none; color:var(--text-primary); font-family:var(--font-mono); cursor:pointer;">Scratchpad</button>
-              <button class="tab-btn" id="tab-gemini" style="background:none; border:none; color:var(--text-tertiary); font-family:var(--font-mono); cursor:pointer;">Gemini</button>
+              <span style="color:var(--text-primary); font-family:var(--font-mono);">Scratchpad</span>
             </div>
             <button class="scratchpad-close" id="scratchpad-close" aria-label="Close">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -151,9 +152,6 @@ class FocusScreen {
             <p class="scratchpad-hint">Externalize intrusive thoughts to free working memory.</p>
             <textarea id="scratchpad-textarea" placeholder="Dump distracting thoughts here..."></textarea>
           </div>
-          <div id="content-gemini" class="hidden" style="flex:1; padding-top:1rem; height:100%;">
-            <iframe src="https://gemini.google.com/app" style="width:100%; height:100%; border:none; border-radius:8px;"></iframe>
-          </div>
         </div>
       </div>
     `;
@@ -161,10 +159,13 @@ class FocusScreen {
 
   mount() {
     let focusMins = this.app.sessionState.duration || 90;
-    if (this.app.sessionState.totalParts === 2) {
-      focusMins = Math.round(focusMins / 2);
-    }
     this.durationMs = focusMins * 60 * 1000;
+    
+    // Determine start elapsed offset for part 2
+    this.startElapsedOffset = 0;
+    if (this.app.sessionState.totalParts === 2 && this.app.sessionState.currentPart === 2) {
+      this.startElapsedOffset = Math.round(this.durationMs / 2);
+    }
     this.startTime = Date.now();
     this.elapsed = 0;
     this.paused = false;
@@ -172,7 +173,7 @@ class FocusScreen {
     this.pulseCount = 0;
     this.dreamWhisperShown = false;
     this.sighActive = false;
-    this.currentAudioMode = 'silence';
+    this.currentAudioMode = 'binaural';
 
     this.buildArcPath();
     this.tick();
@@ -180,6 +181,7 @@ class FocusScreen {
     setTimeout(() => {
       document.body.classList.add('theme-focus');
       window.audioEngine.playFocusBell();
+      this.setAudioMode('binaural');
     }, 500);
 
     // Dream Whisper after 2 min
@@ -188,6 +190,15 @@ class FocusScreen {
     }
 
     this.schedule2020();
+
+    // Visibility change detection
+    this.visibilityHandler = () => {
+      if (document.visibilityState === 'visible' && !this.paused) {
+        this.triggerDreamWhisper();
+        window.audioEngine.playRestBell();
+      }
+    };
+    document.addEventListener('visibilitychange', this.visibilityHandler);
 
     // Audio tiles
     document.querySelectorAll('.audio-tile').forEach(btn => {
@@ -202,31 +213,14 @@ class FocusScreen {
       if (!this.sighActive) this.startSigh();
     });
 
-    // Skip
-    document.getElementById('btn-debug-skip').addEventListener('click', () => this.complete());
+    // Scratchpad Button
+    document.getElementById('btn-scratchpad').addEventListener('click', () => this.toggleScratchpad());
 
     // Eye rest dismiss
     document.getElementById('eyerest-dismiss').addEventListener('click', () => this.dismissEyeRest());
 
     // Scratchpad & Gemini
     document.getElementById('scratchpad-close').addEventListener('click', () => this.closeScratchpad());
-    const tabScratchpad = document.getElementById('tab-scratchpad');
-    const tabGemini = document.getElementById('tab-gemini');
-    const contentScratchpad = document.getElementById('content-scratchpad');
-    const contentGemini = document.getElementById('content-gemini');
-
-    tabScratchpad.addEventListener('click', () => {
-      tabScratchpad.style.color = 'var(--text-primary)';
-      tabGemini.style.color = 'var(--text-tertiary)';
-      contentScratchpad.classList.remove('hidden');
-      contentGemini.classList.add('hidden');
-    });
-    tabGemini.addEventListener('click', () => {
-      tabGemini.style.color = 'var(--text-primary)';
-      tabScratchpad.style.color = 'var(--text-tertiary)';
-      contentGemini.classList.remove('hidden');
-      contentScratchpad.classList.add('hidden');
-    });
 
     // Keyboard
     this.keyHandler = (e) => {
@@ -297,7 +291,8 @@ class FocusScreen {
   tick() {
     if (!this.paused) {
       const now = Date.now();
-      this.elapsed = now - this.startTime - this.totalPauseMs;
+      // Total effectively elapsed across parts
+      this.elapsed = this.startElapsedOffset + (now - this.startTime - this.totalPauseMs);
       const progress = Math.min(this.elapsed / this.durationMs, 1);
 
       const fgPath = document.getElementById('progress-arc-path');
@@ -305,6 +300,15 @@ class FocusScreen {
         fgPath.style.strokeDashoffset = this.pathLength * (1 - progress);
       }
 
+      // Midway break threshold
+      if (this.app.sessionState.totalParts === 2 && this.app.sessionState.currentPart === 1) {
+        if (progress >= 0.5) {
+          this.complete();
+          return;
+        }
+      }
+
+      // Session complete
       if (progress >= 1) {
         this.complete();
         return;
@@ -436,6 +440,7 @@ class FocusScreen {
     overlay.classList.add('active');
 
     for (let cycle = 0; cycle < 3; cycle++) {
+      window.audioEngine.playInhaleChime();
       text.textContent = 'Inhale';
       circle.style.transform = 'scale(0.6)';
       await this.sleep(200);
@@ -443,10 +448,12 @@ class FocusScreen {
       circle.style.transform = 'scale(0.9)';
       await this.sleep(2000);
 
+      window.audioEngine.playInhaleChime(); // Second inhale chime
       text.textContent = 'Inhale deeper';
       circle.style.transform = 'scale(1.15)';
       await this.sleep(2000);
 
+      window.audioEngine.playExhaleChime();
       text.textContent = 'Exhale slowly';
       circle.style.transition = 'transform 6s var(--ease-breathe)';
       circle.style.transform = 'scale(0.45)';
@@ -492,6 +499,15 @@ class FocusScreen {
   /* ---- Dev Panel ---- */
 
   setupDevPanel() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDev = urlParams.get('dev') === 'true';
+    const panel = document.getElementById('dev-panel');
+
+    if (!isDev) {
+      panel.style.display = 'none';
+      return;
+    }
+
     const toggle = document.getElementById('dev-panel-toggle');
     const content = document.getElementById('dev-panel-content');
 
@@ -550,9 +566,11 @@ class FocusScreen {
   }
 
   cleanup() {
+    window.audioEngine.setMode('silence'); // Pause sounds automatically on exit
     if (this.rafId) cancelAnimationFrame(this.rafId);
     if (this.twentyTimer) clearTimeout(this.twentyTimer);
     if (this.keyHandler) document.removeEventListener('keydown', this.keyHandler);
+    if (this.visibilityHandler) document.removeEventListener('visibilitychange', this.visibilityHandler);
     this.eyerestActive = false;
     this.sighActive = false;
   }

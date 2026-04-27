@@ -21,13 +21,13 @@ class BreakScreen {
             <p class="break-subtitle" id="break-subtitle">Stand up. Look away from the screen. Close your eyes or stretch.</p>
           </div>
 
-          <div class="break-progress-container" style="width: 100%; max-width: 400px; margin: 0 auto; background: var(--surface-light); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 1rem; margin-bottom: 1rem;">
+          <div class="break-progress-container" id="break-progress-container" style="width: 100%; max-width: 400px; margin: 0 auto; background: var(--bg-tertiary); height: 10px; border-radius: 6px; overflow: hidden; margin-top: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color);">
             <div id="break-progress-bar" style="height: 100%; width: 0%; background: var(--accent); transition: width 1s linear;"></div>
           </div>
 
           <div id="break-default-actions" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap: 1rem;">
             <button id="btn-start-meditation" class="btn btn-outline" style="min-width: 280px;">
-              🫁 Guided Box Breathing
+              Guided Box Breathing
             </button>
             <button id="btn-skip-break" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.5rem 1rem; opacity: 0.35;">
               Skip Break
@@ -58,6 +58,7 @@ class BreakScreen {
       const breakMinutes = Math.max(5, Math.round(focusMinutes * 0.2));
       this.breakDurationSec = breakMinutes * 60;
       document.getElementById('break-main-title').textContent = "Deep Restoration.";
+      document.getElementById('btn-skip-break').textContent = "End Session";
     }
     
     this.remaining = this.breakDurationSec;
@@ -72,7 +73,11 @@ class BreakScreen {
     this.timer = setInterval(() => this.tickCountdown(), 1000);
 
     // Event listeners
-    document.getElementById('btn-skip-break').addEventListener('click', () => this.complete());
+    const skipBtn = document.getElementById('btn-skip-break');
+    skipBtn.addEventListener('click', () => this.complete());
+    if (!this.app.isDev && this.app.sessionState.isMidwayBreak) {
+      skipBtn.style.display = 'none';
+    }
     document.getElementById('btn-start-meditation').addEventListener('click', () => this.startMeditationUI());
     document.getElementById('btn-stop-meditation').addEventListener('click', () => this.stopMeditationUI());
   }
@@ -111,26 +116,30 @@ class BreakScreen {
       // Inhale
       window.audioEngine.playInhaleChime();
       text.textContent = 'Inhale';
-      circle.className = 'break-breath-circle inhale';
+      circle.className = 'break-breath-circle';
+      circle.style.transform = 'scale(1.4)';
+      circle.style.opacity = '0.9';
+      circle.style.boxShadow = '0 0 60px var(--accent-glow)';
       await this.sleep(4000);
       if (!this.breathingActive) return;
 
-      // Hold
+      // Hold (Full)
       text.textContent = 'Hold';
-      circle.className = 'break-breath-circle hold';
+      circle.style.boxShadow = '0 0 40px var(--accent-glow)';
       await this.sleep(4000);
       if (!this.breathingActive) return;
 
       // Exhale
       window.audioEngine.playExhaleChime();
       text.textContent = 'Exhale';
-      circle.className = 'break-breath-circle exhale';
+      circle.style.transform = 'scale(0.6)';
+      circle.style.opacity = '0.4';
+      circle.style.boxShadow = '0 0 20px var(--accent-dim)';
       await this.sleep(4000);
       if (!this.breathingActive) return;
 
-      // Hold
+      // Hold (Empty)
       text.textContent = 'Hold';
-      circle.className = 'break-breath-circle hold';
       await this.sleep(4000);
       if (!this.breathingActive) return;
     }

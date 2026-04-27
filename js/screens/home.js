@@ -15,7 +15,7 @@ class HomeScreen {
           <header class="home-hero">
             <h1 class="hero-title">FlowState</h1>
             <p class="hero-subtitle">A scientifically grounded environment for deep work, obsession, and total cognitive absorption.</p>
-            <button class="btn btn-large" id="btn-enter" style="margin-top: 2rem;">Enter Sanctuary</button>
+            <button class="btn btn-large" id="btn-enter" style="margin-top: 2rem;">Enter Flow</button>
           </header>
 
           <div class="feature-grid">
@@ -32,8 +32,8 @@ class HomeScreen {
               <p>Mandatory cyclic breaks with box breathing and active recovery protocols to prevent burnout.</p>
             </div>
             <div class="feature-card">
-              <h3>The Testing Effect</h3>
-              <p>Post-session Feynman memory dumps enforce active recall and deepen learning consolidation.</p>
+              <h3>Eye Rest Protocol</h3>
+              <p>20/20/20 eye rest prompts to reduce ocular fatigue during deep focus.</p>
             </div>
           </div>
         </div>

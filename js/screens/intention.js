@@ -9,16 +9,10 @@ class IntentionScreen {
   }
 
   render() {
-    const sessionCount = this.app.sessionCount || 0;
-    const sessionLabel = sessionCount === 0 ? 'Your first session' :
-      sessionCount === 1 ? '1 session completed' :
-      `${sessionCount} sessions completed`;
-
     return `
       <div class="screen" id="screen-intention">
         <form class="intention-form" id="intention-form">
           <div class="intention-header">
-            <div class="session-count">◈ ${sessionLabel}</div>
             <h1>Set Your Intention</h1>
             <div class="divider"></div>
             <p>Clarity of purpose is the first gate to flow. Name what matters for this session.</p>
