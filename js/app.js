@@ -57,7 +57,6 @@ class FlowStateApp {
   }
 
   navigateTo(screenName) {
-    document.body.dataset.screen = screenName;
     // Unmount current
     if (this.currentScreen && this.screenInstances[this.currentScreen]?.unmount) {
       this.screenInstances[this.currentScreen].unmount();
