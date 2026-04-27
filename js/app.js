@@ -80,6 +80,7 @@ class FlowStateApp {
     }
 
     this.currentScreen = screenName;
+    document.body.dataset.screen = screenName;
 
     // Mount
     if (this.screenInstances[screenName]?.mount) {

@@ -175,6 +175,10 @@ body.theme-break .orb-3 { background: radial-gradient(circle, #c4813a 0%, transp
   inset: 0;
 }
 
+body[data-screen="focus"] .dust-container {
+  display: none !important;
+}
+
 .dust {
   position: absolute;
   width: 2px;
