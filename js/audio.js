@@ -94,7 +94,7 @@ class AudioEngine {
     oscL.type = 'sine';
     oscL.frequency.value = 200;
     const gainL = this.ctx.createGain();
-    gainL.gain.value = 0.7; 
+    gainL.gain.value = 1.5; // Aggressive boost
     oscL.connect(gainL);
     gainL.connect(merger, 0, 0);
 
@@ -102,7 +102,7 @@ class AudioEngine {
     oscR.type = 'sine';
     oscR.frequency.value = 240;
     const gainR = this.ctx.createGain();
-    gainR.gain.value = 0.7; 
+    gainR.gain.value = 1.5; // Aggressive boost
     oscR.connect(gainR);
     gainR.connect(merger, 0, 1);
 
@@ -111,7 +111,7 @@ class AudioEngine {
 
     // Fade in
     masterGain.gain.setValueAtTime(0, this.ctx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + 2);
+    masterGain.gain.linearRampToValueAtTime(2, this.ctx.currentTime + 2); // Over-amplify to ensure audibility
 
     this.activeSource = {
       nodes: [oscL, oscR, gainL, gainR, merger],
@@ -157,7 +157,7 @@ class AudioEngine {
 
     // Fade in
     masterGain.gain.setValueAtTime(0, this.ctx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.75, this.ctx.currentTime + 2); // Boosted from 0.35
+    masterGain.gain.linearRampToValueAtTime(0.75, this.ctx.currentTime + 2); // Restored to previous level
 
     this.activeSource = {
       nodes: [source, filter],
