@@ -47,6 +47,28 @@ class SetupScreen {
             Confirm & Begin
           </button>
         </div>
+
+        <!-- Pre-session Checklist Overlay -->
+        <div class="checklist-overlay" id="checklist-overlay">
+          <div class="checklist-container">
+            <h2 class="checklist-title">Environmental Check</h2>
+            <div class="checklist-items">
+              <div class="checklist-item" id="item-dnd">
+                <div class="check-icon"></div>
+                <span>Devices on Do Not Disturb</span>
+              </div>
+              <div class="checklist-item" id="item-water">
+                <div class="check-icon"></div>
+                <span>Hydration (Water bottle ready)</span>
+              </div>
+              <div class="checklist-item" id="item-light">
+                <div class="check-icon"></div>
+                <span>Comfortable lighting</span>
+              </div>
+            </div>
+            <button class="btn btn-large" id="btn-start-focus" style="width: 100%;">Enter Sanctuary</button>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -97,18 +119,34 @@ class SetupScreen {
       this.app.sessionState.totalParts = duration >= 60 ? 2 : 1;
       this.app.sessionState.currentPart = 1;
 
-      // Init audio context on user gesture
-      window.audioEngine.init();
+      // Show checklist
+      const overlay = document.getElementById('checklist-overlay');
+      overlay.classList.add('active');
 
-      // Request fullscreen
-      const el = document.documentElement;
-      if (el.requestFullscreen) {
-        el.requestFullscreen().catch(() => {});
-      } else if (el.webkitRequestFullscreen) {
-        el.webkitRequestFullscreen();
-      }
+      // Checklist item toggles
+      document.querySelectorAll('.checklist-item').forEach(item => {
+        item.addEventListener('click', () => {
+          item.classList.toggle('checked');
+        });
+      });
 
-      setTimeout(() => this.app.navigateTo('focus'), 500);
+      // Final start button
+      const startBtn = document.getElementById('btn-start-focus');
+      startBtn.addEventListener('click', () => {
+        // Init audio context on user gesture
+        window.audioEngine.init();
+
+        // Request fullscreen
+        const el = document.documentElement;
+        if (el.requestFullscreen) {
+          el.requestFullscreen().catch(() => {});
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        }
+
+        overlay.classList.remove('active');
+        setTimeout(() => this.app.navigateTo('focus'), 500);
+      }, { once: true });
     });
   }
 
