@@ -81,7 +81,6 @@ class HomeScreen {
       const name = nameField.value.trim();
       if (name) {
         this.app.currentUser.name = name;
-        await window.flowDB.updateUserName(this.app.currentUser.id, name);
         window.flowLogger.logName(name); // Log to spreadsheet
       }
       this.app.navigateTo('intention');

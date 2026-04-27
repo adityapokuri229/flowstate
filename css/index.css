@@ -2317,6 +2317,10 @@ p, label, span {
 }
 
 /* ---------- Checklist Screen ---------- */
+#screen-checklist {
+  justify-content: center;
+}
+
 .checklist-container {
   max-width: 500px;
   width: 90%;
@@ -2341,7 +2345,9 @@ p, label, span {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  align-items: center;
+  align-items: flex-start; /* Left-align the bullet points */
+  margin: 0 auto;
+  width: fit-content; /* Ensure the centered container only takes up as much space as needed to keep bullets left-aligned */
 }
 
 .checklist-item {

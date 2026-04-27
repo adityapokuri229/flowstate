@@ -25,8 +25,7 @@ class DashboardScreen {
           </div>
 
           <div style="display: flex; gap: 1rem; justify-content: center;">
-            <button class="btn btn-large" id="btn-save-session" style="min-width: 200px;">Save Session</button>
-            <button class="btn btn-ghost" id="btn-new-session" style="min-width: 200px;">Start Another</button>
+            <button class="btn btn-large" id="btn-new-session" style="min-width: 280px;">Start Another Session</button>
           </div>
         </div>
       </div>
@@ -34,16 +33,10 @@ class DashboardScreen {
   }
 
   mount() {
-
     // Quote
     const quote = window.FlowQuotes.getQuote(this.app.sessionState.dream || '');
     document.getElementById('dash-quote-text').textContent = quote.text;
     document.getElementById('dash-quote-author').textContent = quote.author;
-
-    // Reset session
-    document.getElementById('btn-save-session').addEventListener('click', async () => {
-      await this.saveSession();
-    });
 
     document.getElementById('btn-new-session').addEventListener('click', () => {
       if (document.fullscreenElement) {
@@ -52,40 +45,9 @@ class DashboardScreen {
       this.app.resetSession();
       this.app.navigateTo('intention');
     });
-
-    this.loadAnalytics();
   }
 
-  async saveSession() {
-    const state = this.app.sessionState;
-    const session = {
-      user_id: this.app.currentUser.id,
-      duration_minutes: state.duration,
-      subject: state.subject || 'Unspecified',
-      milestone: state.milestone || '',
-      flow_rating: 5,
-      achieved_status: 'yes',
-      scratchpad_notes: state.scratchpad_notes || '',
-      feynman_dump: state.feynman_dump || '',
-    };
 
-    await window.flowDB.saveSession(session);
-
-    const hoursToAdd = (state.duration || 0) / 60;
-    await window.flowDB.updateUserHours(this.app.currentUser.id, hoursToAdd);
-    this.app.currentUser = await window.flowDB.getUser(this.app.currentUser.id);
-
-    const btn = document.getElementById('btn-save-session');
-    btn.textContent = 'Saved ✓';
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-
-    this.loadAnalytics();
-  }
-
-  async loadAnalytics() {
-    // simplified analytics call
-  }
 
   escapeHtml(str) {
     const div = document.createElement('div');

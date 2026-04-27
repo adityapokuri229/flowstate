@@ -8,7 +8,7 @@ class FlowStateApp {
     this.currentScreen = null;
     this.screens = {};
     this.screenInstances = {};
-    this.currentUser = null;
+    this.currentUser = { name: '' };
     this.sessionCount = 0;
     this.isDev = new URLSearchParams(window.location.search).get('dev') === 'true';
 
@@ -22,14 +22,6 @@ class FlowStateApp {
   }
 
   async init() {
-    // Initialize database
-    await window.flowDB.init();
-    this.currentUser = await window.flowDB.getOrCreateUser();
-
-    // Get session count
-    const sessions = await window.flowDB.getAllSessions(this.currentUser.id);
-    this.sessionCount = sessions.length;
-
     // Spawn ambient dust particles
     this.spawnDust();
 
