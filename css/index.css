@@ -2511,8 +2511,8 @@ p, label, span {
     margin-bottom: 0 !important;
   }
   .breathing-circle-wrapper {
-    width: clamp(100px, 38vh, 160px);
-    height: clamp(100px, 38vh, 160px);
+    width: clamp(160px, 58vh, 260px);
+    height: clamp(160px, 58vh, 260px);
   }
   .breathing-phase-text {
     font-size: clamp(1rem, 3.5vh, 1.5rem);
@@ -2600,8 +2600,8 @@ p, label, span {
 
   /* ---- Focus Screen ---- */
   .focus-mandala {
-    width: clamp(100px, 30vh, 160px);
-    height: clamp(100px, 30vh, 160px);
+    width: clamp(140px, 42vh, 200px);
+    height: clamp(140px, 42vh, 200px);
   }
   .focus-state-label {
     font-size: 0.55rem;
@@ -2615,9 +2615,10 @@ p, label, span {
     height: 36px;
   }
   .audio-tiles {
-    bottom: auto;
-    top: 0.5rem;
-    gap: 0.4rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    top: auto;
+    gap: 0.5rem;
   }
   .audio-tile {
     padding: 0.4rem 0.6rem;
@@ -2750,8 +2751,8 @@ p, label, span {
     gap: 1.25rem;
   }
   .breathing-circle-wrapper {
-    width: clamp(160px, 40vh, 220px);
-    height: clamp(160px, 40vh, 220px);
+    width: clamp(200px, 50vh, 280px);
+    height: clamp(200px, 50vh, 280px);
   }
   .breathing-phase-text {
     font-size: 1.6rem;
